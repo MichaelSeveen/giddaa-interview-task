@@ -1,8 +1,8 @@
 import { NumberOne, NumberThree, NumberTwo } from "../card-numbers";
 import { SectionBadge } from "../ui/section-badge";
 import { CTAButtonPair } from "../ui/cta-button-pair";
-import { HOW_IT_WORKS_STEPS } from "../../data";
-import type { StepCardData } from "../../data";
+import { HOW_IT_WORKS_STEPS } from "@/data";
+import type { StepCardData } from "@/data";
 import type { ReactNode } from "react";
 
 const NUMBER_COMPONENTS: Record<StepCardData["numberComponent"], ReactNode> = {
@@ -44,13 +44,15 @@ function StepCard({ step }: { step: StepCardData }) {
 export function HowItWorksSection() {
   return (
     <section className="w-full bg-[#F2F2F2] pb-22.5 lg:pb-31.25 pt-20">
-      <div className="relative container mx-auto px-4 md:px-6 lg:px-20">
+      <div className="relative container mx-auto px-4 md:px-6 lg:px-20 max-w-full">
         <div className="relative flex flex-col md:flex-row gap-20 w-full">
           <div className="flex flex-col gap-6 md:sticky md:top-[25vh] md:self-start flex-1">
             <SectionBadge label="How it works" variant="light" />
-            <h2 className="font-bold text-[2rem] leading-12.5 lg:text-[2.5rem] w-88.25 lg:leading-17 lg:w-150.75 lg:h-31">
-              3 Easy Steps to Tax Compliance{" "}
-              <span className="hidden">& Savings</span>.
+            <h2 className="hidden lg:block font-bold text-[2.5rem] leading-17 w-150.75 h-31 text-[#001F3F]">
+              3 Easy Steps to Tax Compliance & Savings.
+            </h2>
+            <h2 className="lg:hidden font-bold text-[2rem] leading-12.5 text-[#001F3F]">
+              3 Easy Steps to Tax Compliance.
             </h2>
             <p className="text-[#4B4B4B] text-[1rem] lg:text-[1.25rem] leading-8.5 w-86.25 h-14.75 lg:w-150.75 lg:h-15.75">
               No matter your tax needs, file with confidence and get the most

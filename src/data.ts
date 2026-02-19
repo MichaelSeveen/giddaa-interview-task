@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import type { AccordionItemData } from "./components/ui/accordion";
 
 // FAQ Data
@@ -320,5 +319,66 @@ export const TESTIMONIAL_CARDS: TestimonialCardData[] = [
     tag: "Company Tax",
     imageSrc: "/images/testimonial-image-4.jpg",
     gradientId: "j",
+  },
+];
+
+// Tax Community Data
+export interface CommunityCardData {
+  title: string;
+  body: string;
+  askedBy: string;
+  timeAgo: string;
+  likes: number;
+  answers: number;
+}
+
+export const TAX_COMMUNITY_CARDS: CommunityCardData[] = [
+  {
+    title: "How can I avoid Tax?",
+    body: "I work as a civil servant in Lagos and I\u2019m trying to understand how to calculate my taxable income. Do I include all allowances? What about housing ...",
+    askedBy: "Adebayo M.",
+    timeAgo: "2 hours ago",
+    likes: 12,
+    answers: 5,
+  },
+  {
+    title: "Is rental income taxable?",
+    body: "I own a 3-bedroom flat in Abuja that I rent out. Do I need to declare the rental income on my annual tax return? And if so, what rate applies ...",
+    askedBy: "Chioma K.",
+    timeAgo: "5 hours ago",
+    likes: 8,
+    answers: 3,
+  },
+  {
+    title: "VAT registration threshold?",
+    body: "My small business just started making over \u20A625M annually. At what point am I required to register for VAT, and what are the penalties for late registration ...",
+    askedBy: "Emeka O.",
+    timeAgo: "1 day ago",
+    likes: 15,
+    answers: 7,
+  },
+  {
+    title: "Filing taxes as a freelancer",
+    body: "I\u2019m a freelance graphic designer earning from both local and international clients. How do I handle foreign income tax under the new 2025 Tax Act ...",
+    askedBy: "Fatima B.",
+    timeAgo: "3 hours ago",
+    likes: 20,
+    answers: 4,
+  },
+  {
+    title: "What is withholding tax?",
+    body: "My company deducts WHT from payments to our vendors. How do we calculate the correct rate, and what documents do we need to file with FIRS ...",
+    askedBy: "Tunde A.",
+    timeAgo: "6 hours ago",
+    likes: 6,
+    answers: 2,
+  },
+  {
+    title: "Capital gains on property sale",
+    body: "I recently sold a property I owned for 10 years. How is capital gains tax calculated? Are there any exemptions I should know about before filing ...",
+    askedBy: "Grace N.",
+    timeAgo: "12 hours ago",
+    likes: 9,
+    answers: 6,
   },
 ];

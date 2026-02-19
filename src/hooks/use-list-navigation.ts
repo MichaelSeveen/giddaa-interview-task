@@ -6,11 +6,6 @@ interface UseListNavigationProps {
   onOpen: () => void;
   onClose: () => void;
   onSelect: (index: number) => void;
-  /**
-   * Whether the Space bar should confirm the active option.
-   * Set to false for Combobox so Space types into the input instead.
-   * @default true
-   */
   spaceSelects?: boolean;
 }
 
@@ -20,12 +15,6 @@ interface UseListNavigationReturn {
   handleKeyDown: (event: React.KeyboardEvent) => void;
 }
 
-/**
- * Manages keyboard navigation for a button/input → listbox pattern.
- *
- * Follows the ARIA Authoring Practices Guide keyboard contract:
- * https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
- */
 export function useListNavigation({
   itemCount,
   isOpen,
@@ -41,7 +30,6 @@ export function useListNavigation({
       const lastIndex = itemCount - 1;
       const hasItems = itemCount > 0;
 
-      // ── Closed state ──────────────────────────────────────────────────
       if (!isOpen) {
         if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
           event.preventDefault();
@@ -52,7 +40,6 @@ export function useListNavigation({
         return;
       }
 
-      // ── Open state ────────────────────────────────────────────────────
       switch (event.key) {
         case "ArrowDown":
           event.preventDefault();
@@ -60,7 +47,6 @@ export function useListNavigation({
           break;
 
         case "ArrowUp":
-          // Alt+ArrowUp: select current option and close (APG §3.2)
           if (event.altKey) {
             event.preventDefault();
             if (activeIndex >= 0) onSelect(activeIndex);
@@ -97,8 +83,6 @@ export function useListNavigation({
           break;
 
         case "Tab":
-          // Tab closes and commits without preventing default so focus moves naturally
-          // Only commit if an option is actively highlighted
           if (activeIndex >= 0) onSelect(activeIndex);
           onClose();
           setActiveIndex(-1);

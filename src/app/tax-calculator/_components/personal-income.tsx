@@ -9,14 +9,14 @@ import type {
 } from "@/config/types";
 import { calculatePAYE } from "../actions";
 import { formatNaira } from "@/lib/format";
-import Alert from "@/app/components/ui/alert";
-import { Badge } from "@/app/components/ui/badge";
-import Card from "@/app/components/ui/card";
-import { Input } from "@/app/components/ui/input";
-import Label from "@/app/components/ui/label";
-import { Progress } from "@/app/components/ui/progress";
-
-/* ─── Constants ──────────────────────────────────────────────────────────── */
+import Alert from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import Card from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import Label from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import NairaIcon from "@/components/icons/naira-icon";
+import { parseInput } from "@/lib/utils";
 
 const INITIAL_INCOME: IncomeFields = {
   salaryIncome: 0,
@@ -35,7 +35,6 @@ const INITIAL_DEDUCTIONS: DeductionFields = {
   gratitude: 0,
 };
 
-/** Map rate → badge colour for the tax brackets table. */
 const RATE_COLORS: Record<number, string> = {
   0: "bg-[#00C950]",
   15: "bg-[#2B7FFF]",
@@ -45,31 +44,17 @@ const RATE_COLORS: Record<number, string> = {
   25: "bg-[#FB2C36]",
 };
 
-/* ─── Helpers ────────────────────────────────────────────────────────────── */
-
-/** Sum all numeric values of an object. */
 function sumValues(obj: IncomeFields | DeductionFields): number {
   return Object.values(obj).reduce((a, b) => a + b, 0);
 }
 
-/** Parse a raw input string to a number (empty / NaN → 0). */
-function parseInput(raw: string): number {
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : 0;
-}
-
-/** Label for a tax band. */
 function bandLabel(rate: number): string {
   return rate === 0 ? "Tax-Free" : `${rate}% Band`;
 }
 
-/* ─── Props ──────────────────────────────────────────────────────────────── */
-
 interface PersonalIncomeProps {
   onSummaryChange: (summary: TaxSummary) => void;
 }
-
-/* ─── Component ──────────────────────────────────────────────────────────── */
 
 export default function PersonalIncome({
   onSummaryChange,
@@ -79,8 +64,6 @@ export default function PersonalIncome({
     useState<DeductionFields>(INITIAL_DEDUCTIONS);
   const [taxBands, setTaxBands] = useState<TaxBand[] | null>(null);
   const [isPending, startTransition] = useTransition();
-
-  /* ── Derived values (instant, every render) ──────────────────────────── */
 
   const grossIncome = sumValues(income);
   const totalDeductions = sumValues(deductions);
@@ -103,8 +86,6 @@ export default function PersonalIncome({
     });
   }, [totalTaxPaid, monthly, effectiveRate, onSummaryChange]);
 
-  /* ── Input handlers (generic for each field group) ───────────────────── */
-
   function handleIncomeChange(field: keyof IncomeFields) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
       setIncome((prev) => ({ ...prev, [field]: parseInput(e.target.value) }));
@@ -119,8 +100,6 @@ export default function PersonalIncome({
       }));
     };
   }
-
-  /* ── Calculate & Reset ───────────────────────────────────────────────── */
 
   function handleCalculate() {
     startTransition(async () => {
@@ -139,8 +118,6 @@ export default function PersonalIncome({
     setTaxBands(null);
   }
 
-  /* ── Render ──────────────────────────────────────────────────────────── */
-
   return (
     <div className="flex flex-col gap-8 pb-8">
       <Alert className="lg:hidden flex">
@@ -150,7 +127,6 @@ export default function PersonalIncome({
       </Alert>
 
       <div className="grid items-start grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ── Left column ────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-6">
           {/* Income Sources */}
           <Card
@@ -195,10 +171,10 @@ export default function PersonalIncome({
               />
             </div>
             <div className="flex items-center justify-between border-t border-[#0000001A] pt-4">
-              <p className="text-[1rem] leading-6 text-[#717171]">
+              <p className="text-[1rem] leading-6 text-charcoal">
                 Total Income
               </p>
-              <p className="text-[1.25rem] leading-7 text-[#2C59C3] font-bold">
+              <p className="text-[1.25rem] leading-7 text-primary font-bold">
                 {formatNaira(grossIncome)}
               </p>
             </div>
@@ -254,10 +230,10 @@ export default function PersonalIncome({
               />
             </div>
             <div className="flex items-center justify-between border-t border-[#0000001A] pt-4">
-              <p className="text-[1rem] leading-6 text-[#717171]">
+              <p className="text-[1rem] leading-6 text-charcoal">
                 Total Deductions
               </p>
-              <p className="text-[1.25rem] leading-7 text-[#2C59C3] font-bold">
+              <p className="text-[1.25rem] leading-7 text-primary font-bold">
                 {formatNaira(totalDeductions)}
               </p>
             </div>
@@ -268,7 +244,7 @@ export default function PersonalIncome({
             <button
               onClick={handleCalculate}
               disabled={isPending}
-              className="bg-[#2C59C3] text-white px-4 py-2 h-11.25 w-58.75 lg:w-105.75 inline-flex items-center justify-center gap-4 font-medium text-[0.875rem] leading-5 rounded-[12px] disabled:opacity-60"
+              className="bg-primary text-white px-4 py-2 h-11.25 w-58.75 lg:w-105.75 inline-flex items-center justify-center gap-4 font-medium text-[0.875rem] leading-5 rounded-[12px] disabled:opacity-60"
             >
               <svg
                 width="16"
@@ -296,24 +272,12 @@ export default function PersonalIncome({
           </div>
         </div>
 
-        {/* ── Right column ───────────────────────────────────────────────── */}
         <div className="flex flex-col gap-6">
-          {/* Annual Tax Liability (desktop) */}
+          {/* Annual Tax Liability */}
           <Card className="hidden lg:block bg-[linear-gradient(180deg,#001F3F_0%,#003366_100%),linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.2))] text-white">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <svg
-                  width="14"
-                  height="18"
-                  viewBox="0 0 14 18"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1.72777 17.1367V11.0407H-0.000234358V9.43272H1.72777V7.53672H-0.000234358V5.92872H1.72777V0.00071764H4.60777L6.76777 5.92872H9.40777V0.00071764H11.5198V5.92872H13.2478V7.53672H11.5198V9.43272H13.2478V11.0407H11.5198V17.1367H8.63977L6.45577 11.0407H3.83977V17.1367H1.72777ZM3.83977 9.43272H5.90377L5.23177 7.53672H3.79177L3.83977 9.43272ZM9.43177 13.6567H9.52777L9.45577 11.0407H8.54377L9.43177 13.6567ZM3.76777 5.92872H4.67977L3.76777 3.14472H3.67177L3.76777 5.92872ZM7.99177 9.43272H9.45577L9.40777 7.53672H7.31977L7.99177 9.43272Z"
-                    fill="white"
-                  ></path>
-                </svg>
+                <NairaIcon />
                 <span className="text-[1rem] leading-5">
                   Annual Tax Liability
                 </span>
@@ -360,7 +324,7 @@ export default function PersonalIncome({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-[#717171] py-4">
+              <p className="text-sm text-charcoal py-4">
                 Enter your income and click &quot;Calculate Tax&quot; to see
                 your tax breakdown.
               </p>
@@ -393,10 +357,10 @@ export default function PersonalIncome({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-[1rem] leading-6 text-[#717171]">
+                <p className="text-[1rem] leading-6 text-charcoal">
                   Net Income
                 </p>
-                <p className="text-[1.5rem] font-bold leading-8 text-[#2C59C3]">
+                <p className="text-[1.5rem] font-bold leading-8 text-primary">
                   {formatNaira(netIncome)}
                 </p>
               </div>
@@ -405,7 +369,7 @@ export default function PersonalIncome({
         </div>
       </div>
 
-      {/* 2025 Tax Brackets table (desktop) */}
+      {/* 2025 Tax Brackets table */}
       <Card
         title="2025 Tax Brackets (Progressive Rates)"
         className="hidden lg:block"
@@ -439,7 +403,7 @@ export default function PersonalIncome({
                         {band.rate}%
                       </Badge>
                     </td>
-                    <td className="text-[1rem] leading-6 text-[#717171] text-right">
+                    <td className="text-[1rem] leading-6 text-charcoal text-right">
                       {band.taxPaid > 0 ? formatNaira(band.taxPaid) : "₦0"}
                     </td>
                   </tr>
@@ -448,7 +412,7 @@ export default function PersonalIncome({
             </tbody>
           </table>
         ) : (
-          <p className="text-sm text-[#717171] py-4">
+          <p className="text-sm text-charcoal py-4">
             Click &quot;Calculate Tax&quot; to see the 2025 progressive tax
             brackets applied to your income.
           </p>
@@ -458,9 +422,6 @@ export default function PersonalIncome({
   );
 }
 
-/* ─── Sub-components ─────────────────────────────────────────────────────── */
-
-/** Small wrapper to avoid repeating label + input layout. */
 function IncomeInput({
   label,
   id,
@@ -488,7 +449,6 @@ function IncomeInput({
   );
 }
 
-/** Reusable row for the Income Summary card. */
 function SummaryRow({
   label,
   value,
@@ -500,7 +460,7 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between text-[1rem] leading-6">
-      <p className="text-[#717171]">{label}</p>
+      <p className="text-charcoal">{label}</p>
       <p className={valueClassName}>{value}</p>
     </div>
   );

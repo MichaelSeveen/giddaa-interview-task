@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-
-/* ─── Types ──────────────────────────────────────────────────────────────── */
 
 type Phase = "idle" | "showing" | "visible" | "hiding";
 
@@ -13,22 +11,14 @@ interface ChatMessage {
 }
 
 interface ChatWidgetProps {
-  /** Messages to display — supports 1–N items, each with a title and description. */
   messages: ChatMessage[];
-  /** Milliseconds before messages first appear after mount. @default 3000 */
   initialDelay?: number;
-  /** Milliseconds the messages stay visible before auto-dismissing. @default 6000 */
   visibleDuration?: number;
-  /** Extra className on the outer wrapper. */
   className?: string;
 }
 
-/* ─── Constants ──────────────────────────────────────────────────────────── */
-
 const TRANSITION_MS = 400;
 const STAGGER_MS = 200;
-
-/* ─── Component ──────────────────────────────────────────────────────────── */
 
 export function ChatWidget({
   messages,
@@ -39,22 +29,13 @@ export function ChatWidget({
   const [phase, setPhase] = useState<Phase>("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  const clearTimer = useCallback(() => {
+  const clearTimer = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-  }, []);
+  };
 
-  /**
-   * Single effect for ALL phase transitions.
-   *
-   * Each phase schedules the next one via setTimeout:
-   *   mount  → (initialDelay) → showing
-   *   showing → (stagger + transition) → visible
-   *   visible → (visibleDuration) → hiding
-   *   hiding  → (transition) → idle
-   */
   useEffect(() => {
     clearTimer();
 
@@ -63,9 +44,6 @@ export function ChatWidget({
 
     switch (phase) {
       case "idle":
-        // On first mount we schedule the initial appearance.
-        // Subsequent "idle" phases (after hiding completes) do nothing —
-        // the user must click the FAB to restart.
         return;
 
       case "showing":
@@ -86,38 +64,31 @@ export function ChatWidget({
 
     timerRef.current = setTimeout(() => setPhase(next), delay);
     return clearTimer;
-  }, [phase, messages.length, visibleDuration, clearTimer]);
+  }, [phase, messages.length, visibleDuration]);
 
-  // Separate one-shot effect for the initial auto-show on mount
   useEffect(() => {
     timerRef.current = setTimeout(() => setPhase("showing"), initialDelay);
     return clearTimer;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialDelay]);
 
-  /* ── Click handler ───────────────────────────────────────────────────── */
-
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     clearTimer();
     if (phase === "idle" || phase === "hiding") {
       setPhase("showing");
     } else {
       setPhase("hiding");
     }
-  }, [phase, clearTimer]);
-
-  /* ── Derived state ───────────────────────────────────────────────────── */
+  };
 
   const messagesVisible = phase === "showing" || phase === "visible";
 
   return (
     <div
       className={cn(
-        "fixed bottom-10 right-6 lg:bottom-6 z-50 flex flex-col items-end gap-3",
+        "fixed bottom-4.75 right-4.75 lg:right-6 lg:bottom-6 z-50 flex flex-col items-end gap-3",
         className,
       )}
     >
-      {/* ── Messages ───────────────────────────────────────────────────── */}
       <div className="flex flex-col items-end gap-2 pointer-events-none">
         {messages.map((msg, i) => {
           const delay = i * STAGGER_MS;
@@ -126,7 +97,7 @@ export function ChatWidget({
             <div
               key={i}
               className={cn(
-                "rounded-[32px] border border-[#2C59C3] p-6",
+                "rounded-[32px] border border-primary p-6",
                 "bg-white shadow-[0px_0px_4px_4px_#2C59C333]",
                 "transition-all ease-out flex items-center gap-2.5 lg:w-170.25",
                 messagesVisible
@@ -139,7 +110,7 @@ export function ChatWidget({
               }}
               aria-hidden={!messagesVisible}
             >
-              <div className="size-15 flex items-center justify-center rounded-lg bg-[#2C59C3] shrink-0">
+              <div className="size-15 flex items-center justify-center rounded-lg bg-primary shrink-0">
                 <svg
                   viewBox="0 0 32 32"
                   fill="none"
@@ -175,7 +146,7 @@ export function ChatWidget({
         onClick={handleClick}
         className={cn(
           "size-14 rounded-[12px]",
-          "bg-[#2C59C3] text-white shadow-lg",
+          "bg-primary text-white shadow-lg",
           "hover:shadow-sm hover:scale-105",
           "active:scale-95",
           "transition-all duration-200 ease-out",

@@ -6,7 +6,7 @@ export default function Alert({ className, ...props }: ComponentProps<"div">) {
     <div
       {...props}
       className={cn(
-        "gap-2 lg:gap-3 px-4 py-3.5 rounded-[24px] lg:rounded-[10px] text-[0.875rem] leading-5 text-[#717182] border border-[#2C59C3]",
+        "gap-2 lg:gap-3 px-4 py-3.5 rounded-[24px] lg:rounded-[10px] text-[0.875rem] leading-5 text-[#717182] border border-primary",
         className,
       )}
     >

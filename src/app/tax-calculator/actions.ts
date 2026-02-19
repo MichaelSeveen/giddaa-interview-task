@@ -4,12 +4,6 @@ import type { TaxBand, IncomeFields, DeductionFields } from "@/config/types";
 
 const PAYE_URL = "https://api.taxoga.com/public/tax/paye/calculator";
 
-/**
- * Call the PAYE tax calculator API.
- *
- * This is a Server Action — the request runs server-side, keeping the
- * external API URL out of the client bundle.
- */
 export async function calculatePAYE(
   income: IncomeFields,
   deductions: DeductionFields,
@@ -34,7 +28,6 @@ export async function calculatePAYE(
         gratitude: deductions.gratitude,
       },
     }),
-    // Dynamic body — no caching
     cache: "no-store",
   });
 
@@ -44,7 +37,6 @@ export async function calculatePAYE(
 
   const json = await res.json();
 
-  // Shape: { value: { value: TaxBand[] } }
   const bands: TaxBand[] = json.value.value;
   return bands;
 }

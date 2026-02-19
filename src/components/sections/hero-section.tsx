@@ -3,8 +3,8 @@ import { CTAButtonPair } from "../ui/cta-button-pair";
 
 export function HeroSection() {
   return (
-    <section className="min-h-251.75 lg:min-h-200.5 bg-[url('/patterns/hero-background-pattern.svg')] flex flex-col gap-2.5 md:p-20">
-      <div className="lg:h-151.25 flex flex-col md:flex-row items-center gap-23.25 md:gap-9.25 container mx-auto w-full px-4 md:px-6 lg:px-0 pt-10 lg:pt-0">
+    <section className="relative min-h-251.75 lg:min-h-200.5 bg-[url('/patterns/hero-background-pattern.svg')] flex flex-col gap-2.5 md:p-20">
+      <div className="lg:h-151.25 flex flex-col md:flex-row items-center gap-23.25 md:gap-9.25 container mx-auto w-full px-4 md:px-6 lg:px-0 pt-10 lg:pt-0 max-w-full">
         {/* Hero Text */}
         <div className="flex flex-col gap-4 lg:gap-10 flex-1">
           <div className="lg:w-134">
@@ -122,6 +122,17 @@ export function HeroSection() {
               <path d="m282.793 359.008 11.322 1.544q.822.114 1.648.197 2.028.205 4.07.233a47 47 0 0 0 5.782-.265 51 51 0 0 0 6.469-1.108 56 56 0 0 0 7.061-2.178 69 69 0 0 0 7.483-3.382 85 85 0 0 0 7.834-4.678c6.323-4.236 12.698-9.614 19.074-16.1 9.583-9.743 19.162-21.971 28.475-36.344 15.252-23.527 24.809-45.23 25.657-47.182l-11.322-1.546c-.848 1.955-10.408 23.657-25.656 47.185-9.314 14.372-18.893 26.598-28.476 36.343-3.616 3.678-7.233 7-10.84 9.961a106 106 0 0 1-8.234 6.137 84 84 0 0 1-7.874 4.699 68 68 0 0 1-8.265 3.668 57 57 0 0 1-6.27 1.882 51 51 0 0 1-6.466 1.104 48 48 0 0 1-5.779.26 46 46 0 0 1-5.693-.43" />
             </g>
           </svg>
+        </div>
+
+        <div className="hidden w-[172px] h-[50px] rounded-full lg:inline-flex items-center justify-center gap-2.5 bg-linear-to-b from-[#001F3F] to-[#003366] opacity-70 text-[0.875rem] leading-7 text-white font-bold absolute bottom-5 right-20">
+          <Image
+            src="/images/chat-image.jpg"
+            alt="The head of woman"
+            width={32}
+            height={32}
+            className="rounded-full"
+          />
+          Chat with Tunde
         </div>
       </div>
     </section>

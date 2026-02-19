@@ -39,7 +39,7 @@ export default function WebsiteFooter() {
           <p className="hidden lg:block w-[481px] text-[0.875rem] leading-5 text-[#D1D5DC]">
             Where everyday individuals and businesses get premium tax support.
           </p>
-          <p className="lg:hidden w-[328px] text-[0.875rem] leading-5 text-[#D1D5DC]">
+          <p className="lg:hidden max-sm:max-w-[328px] text-[0.875rem] leading-5 text-[#D1D5DC]">
             Making tax filing easy and compliant under Nigeria's new tax act
             2025.
           </p>
@@ -281,7 +281,7 @@ export default function WebsiteFooter() {
 
         {/* Date and Copyright */}
         <div className="border-t border-[#FFFFFF1A] h-[53px] pt-8.25 flex items-center justify-center text-center">
-          <p className="w-[545px] text-[0.875rem] leading-5 text-[#D1D5DC]">
+          <p className="lg:w-[545px] text-[0.875rem] leading-5 text-[#D1D5DC]">
             © 2025 TaxEase NG. All rights reserved. Built for compliance with
             Nigeria Tax Act 2025.
           </p>

@@ -11,20 +11,9 @@ import {
 import { TabsProps } from "@/config/types";
 import { cn } from "@/lib/utils";
 
-// SSR-safe layout effect
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-/**
- * Tabs — a segmented-control-style tablist with associated tabpanels.
- *
- * ARIA pattern: Tabs with Automatic Activation
- * https://www.w3.org/WAI/ARIA/apg/patterns/tabs/examples/tabs-automatic/
- *
- * Sliding indicator:
- * Width and position are measured from the active tab button's DOM rect,
- * so each tab sizes to fit its own text content.
- */
 export function Tabs({
   tabs,
   selectedValue,
@@ -42,7 +31,6 @@ export function Tabs({
   const activeIndex = tabs.findIndex((t) => t.value === selectedValue);
   const hasPanels = tabs.some((t) => t.content !== undefined);
 
-  // Indicator position & size from DOM measurement
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
   useIsomorphicLayoutEffect(() => {
@@ -63,7 +51,6 @@ export function Tabs({
 
     measure();
 
-    // Re-measure when the tablist resizes (container resize, font load, etc.)
     const ro = new ResizeObserver(measure);
     ro.observe(tablist);
     return () => ro.disconnect();
@@ -96,17 +83,12 @@ export function Tabs({
 
   return (
     <div className={cn("flex flex-col items-center gap-9.25", className)}>
-      {/* ── Tablist ──────────────────────────────────────────────────────── */}
       <div
         ref={tablistRef}
         role="tablist"
         aria-label={label}
         className="relative inline-flex items-center bg-[#ECECF0] rounded-full p-1 w-fit"
       >
-        {/*
-          Sliding selection indicator — decorative, hidden from assistive technology.
-          Width and position are driven by measuring the active tab's DOM rect.
-        */}
         <div
           aria-hidden="true"
           className={cn(
@@ -140,20 +122,14 @@ export function Tabs({
               onClick={() => onSelect(tab.value)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className={cn(
-                // Layout & base — no flex-1, so width fits text content
                 "relative z-10 px-6 py-2 whitespace-nowrap",
                 "border-none bg-transparent rounded-full cursor-pointer",
-                // Typography
                 "text-sm font-semibold leading-5",
-                // Colour — unselected default
                 "text-slate-500 transition-colors duration-200",
-                // Hover only when not selected (avoids fighting the selected colour)
-                !isSelected && "hover:text-slate-700",
-                // Selected
+                !isSelected && "hover:text-charcoal",
                 isSelected && "text-slate-900",
-                // Focus ring — visible only for keyboard navigation
                 "focus:outline-none",
-                "focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2",
+                "focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2",
               )}
             >
               {tab.label}
@@ -162,7 +138,6 @@ export function Tabs({
         })}
       </div>
 
-      {/* ── Tabpanels ────────────────────────────────────────────────────── */}
       {hasPanels &&
         tabs.map((tab) => (
           <div
@@ -175,7 +150,7 @@ export function Tabs({
             className={cn(
               "w-full",
               "focus:outline-none",
-              "focus-visible:outline-2 focus-visible:outline-blue-500",
+              "focus-visible:outline-2 focus-visible:outline-primary",
               "focus-visible:outline-offset-4 focus-visible:rounded",
             )}
           >

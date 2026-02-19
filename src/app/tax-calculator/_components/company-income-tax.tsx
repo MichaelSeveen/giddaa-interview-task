@@ -8,15 +8,15 @@ import type {
   SelectOption,
 } from "@/config/types";
 import { formatNaira } from "@/lib/format";
-import Alert from "@/app/components/ui/alert";
-import Card from "@/app/components/ui/card";
-import { Input } from "@/app/components/ui/input";
-import Label from "@/app/components/ui/label";
-import { Progress } from "@/app/components/ui/progress";
-import { Select } from "@/app/components/ui/dropdown";
-import { Combobox } from "@/app/components/ui/combobox";
-
-/* ─── Constants ──────────────────────────────────────────────────────────── */
+import { parseInput } from "@/lib/utils";
+import Alert from "@/components/ui/alert";
+import Card from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import Label from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Select } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
+import NairaIcon from "@/components/icons/naira-icon";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -25,44 +25,27 @@ const PROFIT_OPTIONS: SelectOption[] = [
   { value: "no", label: "No" },
 ];
 
-/* ─── Helpers ────────────────────────────────────────────────────────────── */
-
-function parseInput(raw: string): number {
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : 0;
-}
-
-/* ─── Props ──────────────────────────────────────────────────────────────── */
-
 interface CompanyIncomeTaxProps {
   industries: Industry[];
   config: CompanyTaxConfig;
   onSummaryChange: (summary: TaxSummary) => void;
 }
 
-/* ─── Component ──────────────────────────────────────────────────────────── */
-
 export default function CompanyIncomeTax({
   industries,
   config,
   onSummaryChange,
 }: CompanyIncomeTaxProps) {
-  /* ── State ─────────────────────────────────────────────────────────────── */
-
   const [industryId, setIndustryId] = useState("");
   const [revenueLevel, setRevenueLevel] = useState("");
   const [madeProfit, setMadeProfit] = useState("");
   const [totalNetProfit, setTotalNetProfit] = useState(0);
   const [yearOfIncorporation, setYearOfIncorporation] = useState(0);
 
-  /* ── Derived: industry options for the Combobox ────────────────────────── */
-
   const industryOptions: SelectOption[] = industries.map((ind) => ({
     value: ind.id,
     label: ind.name,
   }));
-
-  /* ── Derived: revenue Select options (from config threshold) ───────────── */
 
   const revenueOptions: SelectOption[] = [
     {
@@ -74,8 +57,6 @@ export default function CompanyIncomeTax({
       label: `More than ${formatNaira(config.taxableAmountThreshold)}`,
     },
   ];
-
-  /* ── Derived: selected industry's tax properties ──────────────────────── */
 
   const selectedIndustry =
     industries.find((industry) => industry.id === industryId) ?? null;
@@ -91,8 +72,6 @@ export default function CompanyIncomeTax({
     return yearsSinceIncorporation <= selectedIndustry.exemptionPeriodYears;
   })();
 
-  /* ── Derived: tax calculation ──────────────────────────────────────────── */
-
   const shouldCalculateTax =
     !isTaxExempt &&
     revenueLevel === "more" &&
@@ -107,45 +86,24 @@ export default function CompanyIncomeTax({
   const monthly = taxPayable / 12;
   const effectiveRate = shouldCalculateTax ? config.taxRate : 0;
 
-  /* ── Derived: what to show in "Tax Breakdown by Bracket" ───────────────── */
-
   type BreakdownMode = "empty" | "tax-free" | "taxed";
 
   const breakdownMode: BreakdownMode = (() => {
-    // No industry or revenue selected yet → empty
     if (!industryId || !revenueLevel) return "empty";
-
-    // Tax-exempt industry → tax free
     if (isTaxExempt) return "tax-free";
-
-    // Revenue < threshold → tax free
     if (revenueLevel === "less") return "tax-free";
-
-    // Revenue > threshold but didn't make profit → tax free
     if (madeProfit === "no") return "tax-free";
-
-    // Has exemption period and still within it → tax free
     if (isInExemptionPeriod) return "tax-free";
-
-    // All conditions met and we have a profit → taxed
     if (shouldCalculateTax) return "taxed";
-
-    // Otherwise → empty (waiting for more input)
     return "empty";
   })();
-
-  /* ── Progressive disclosure: which fields are visible ──────────────────── */
 
   const showProfitQuestion = revenueLevel === "more";
   const showProfitFields = madeProfit === "yes";
 
-  /* ── Report summary to parent ──────────────────────────────────────────── */
-
   useEffect(() => {
     onSummaryChange({ annual: taxPayable, monthly, effectiveRate });
   }, [taxPayable, monthly, effectiveRate, onSummaryChange]);
-
-  /* ── Reset: clears everything except industry (avoid re-fetch) ─────────── */
 
   function handleReset() {
     setRevenueLevel("");
@@ -154,9 +112,6 @@ export default function CompanyIncomeTax({
     setYearOfIncorporation(0);
   }
 
-  /* ── Cascade reset when changing revenue/profit ────────────────────────── */
-
-  // When revenue changes away from "more", clear downstream fields
   function handleRevenueChange(value: string) {
     setRevenueLevel(value);
     if (value !== "more") {
@@ -166,7 +121,6 @@ export default function CompanyIncomeTax({
     }
   }
 
-  // When profit changes away from "yes", clear downstream fields
   function handleProfitChange(value: string) {
     setMadeProfit(value);
     if (value !== "yes") {
@@ -175,7 +129,14 @@ export default function CompanyIncomeTax({
     }
   }
 
-  /* ── Render ──────────────────────────────────────────────────────────────── */
+  function getTaxFreeReason(): string {
+    if (isTaxExempt) return "You are in a tax-free industry";
+    if (isInExemptionPeriod)
+      return `Tax exemption period applies (${selectedIndustry!.exemptionPeriodYears} years)`;
+    if (revenueLevel === "less")
+      return `Revenue below ${formatNaira(config.taxableAmountThreshold)} threshold`;
+    return "No profit reported";
+  }
 
   return (
     <div className="flex flex-col gap-8 pb-8">
@@ -185,7 +146,6 @@ export default function CompanyIncomeTax({
       </Alert>
 
       <div className="grid items-start grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ── Left column ──────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-6">
           <Card
             title="Income Sources"
@@ -216,7 +176,7 @@ export default function CompanyIncomeTax({
                 />
               </div>
 
-              {/* Did You Make a Profit? — visible only when "More" */}
+              {/* Did You Make a Profit? */}
               {showProfitQuestion && (
                 <div className="flex flex-col gap-2">
                   <p className="text-[0.75rem] leading-6 text-[#717171]">
@@ -233,7 +193,7 @@ export default function CompanyIncomeTax({
                 </div>
               )}
 
-              {/* Total Net Profit + Year of Incorporation — visible only when "Yes" */}
+              {/* Total Net Profit */}
               {showProfitFields && (
                 <>
                   <div className="flex flex-col gap-2">
@@ -268,7 +228,7 @@ export default function CompanyIncomeTax({
               <p className="text-[1rem] leading-6 text-[#717171]">
                 Total Income
               </p>
-              <p className="text-[1.25rem] leading-7 text-[#2C59C3] font-bold">
+              <p className="text-[1.25rem] leading-7 text-primary font-bold">
                 {formatNaira(totalNetProfit)}
               </p>
             </div>
@@ -282,24 +242,11 @@ export default function CompanyIncomeTax({
           </button>
         </div>
 
-        {/* ── Right column ─────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-6">
-          {/* Annual Tax Liability (desktop) */}
           <Card className="hidden lg:block bg-[linear-gradient(180deg,#001F3F_0%,#003366_100%),linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.2))] text-white">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <svg
-                  width="14"
-                  height="18"
-                  viewBox="0 0 14 18"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1.72777 17.1367V11.0407H-0.000234358V9.43272H1.72777V7.53672H-0.000234358V5.92872H1.72777V0.00071764H4.60777L6.76777 5.92872H9.40777V0.00071764H11.5198V5.92872H13.2478V7.53672H11.5198V9.43272H13.2478V11.0407H11.5198V17.1367H8.63977L6.45577 11.0407H3.83977V17.1367H1.72777ZM3.83977 9.43272H5.90377L5.23177 7.53672H3.79177L3.83977 9.43272ZM9.43177 13.6567H9.52777L9.45577 11.0407H8.54377L9.43177 13.6567ZM3.76777 5.92872H4.67977L3.76777 3.14472H3.67177L3.76777 5.92872ZM7.99177 9.43272H9.45577L9.40777 7.53672H7.31977L7.99177 9.43272Z"
-                    fill="white"
-                  ></path>
-                </svg>
+                <NairaIcon />
                 <span className="text-[1rem] leading-5">
                   Annual Tax Liability
                 </span>
@@ -343,15 +290,7 @@ export default function CompanyIncomeTax({
                   label="Tax-Free Band"
                   value={0}
                   displayValue={formatNaira(0)}
-                  description={
-                    isTaxExempt
-                      ? "You are in a tax-free industry"
-                      : isInExemptionPeriod
-                        ? `Tax exemption period applies (${selectedIndustry!.exemptionPeriodYears} years)`
-                        : revenueLevel === "less"
-                          ? `Revenue below ${formatNaira(config.taxableAmountThreshold)} threshold`
-                          : "No profit reported"
-                  }
+                  description={getTaxFreeReason()}
                 />
               </div>
             ) : (
@@ -385,7 +324,7 @@ export default function CompanyIncomeTax({
                 <p className="text-[1rem] leading-6 text-[#717171]">
                   Net Income
                 </p>
-                <p className="text-[1.5rem] font-bold leading-8 text-[#2C59C3]">
+                <p className="text-[1.5rem] font-bold leading-8 text-primary">
                   {formatNaira(totalNetProfit)}
                 </p>
               </div>
@@ -396,8 +335,6 @@ export default function CompanyIncomeTax({
     </div>
   );
 }
-
-/* ─── Sub-components ─────────────────────────────────────────────────────── */
 
 function SummaryRow({
   label,

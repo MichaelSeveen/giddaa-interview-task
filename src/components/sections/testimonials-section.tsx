@@ -1,13 +1,15 @@
 import Image from "next/image";
 import { SectionBadge } from "../ui/section-badge";
-import { StarIcon, PlayVideoIcon } from "../icons";
-import { TESTIMONIAL_CARDS } from "../../data";
-import type { TestimonialCardData } from "../../data";
+import { Marquee } from "../ui/marquee";
+import { PlayVideoIcon } from "../icons/play-video-icon";
+import { StarIcon } from "../icons/star-icon";
+import { TESTIMONIAL_CARDS } from "@/data";
+import type { TestimonialCardData } from "@/data";
 
 function VideoTestimonialCard({ card }: { card: TestimonialCardData }) {
   return (
     <div
-      className="relative rounded-[2.5rem] h-[445px] w-full lg:w-[371px] shrink-0 px-4 py-6 bg-cover bg-center flex flex-col overflow-hidden"
+      className="relative rounded-[2.5rem] h-[445px] lg:w-[371px] shrink-0 px-4 py-6 bg-cover bg-center flex flex-col overflow-hidden"
       style={{ backgroundImage: `url('${card.imageSrc}')` }}
     >
       <div className="absolute inset-0 bg-[#00000099]"></div>
@@ -38,7 +40,7 @@ function VideoTestimonialCard({ card }: { card: TestimonialCardData }) {
 
 function ReviewTestimonialCard({ card }: { card: TestimonialCardData }) {
   return (
-    <div className="rounded-[2.5rem] h-[445px] w-full lg:w-[371px] shrink-0 p-4 flex flex-col bg-white px-4 py-6">
+    <div className="rounded-[2.5rem] h-[445px] lg:w-[371px] shrink-0 p-4 flex flex-col bg-white px-4 py-6">
       <div className="h-full flex flex-col gap-4">
         <Image
           src={card.imageSrc}
@@ -71,10 +73,10 @@ function ReviewTestimonialCard({ card }: { card: TestimonialCardData }) {
 export function TestimonialsSection() {
   return (
     <section className="w-full bg-[#F2F2F2] py-20">
-      <div className="container mx-auto flex flex-col gap-10">
+      <div className="container mx-auto flex flex-col gap-10 max-w-full">
         <div className="flex flex-col gap-6 px-4 md:px-6 lg:px-20">
           <SectionBadge label="Testimonials" />
-          <h2 className="font-bold text-[2rem] leading-12.5 lg:text-[2.5rem] lg:leading-17 lg:w-[705px] lg:h-[53px]">
+          <h2 className="font-bold text-[2rem] leading-12.5 lg:text-[2.5rem] lg:leading-17 lg:w-[705px] lg:h-[53px] text-[#001F3F]">
             Hear From Customer&apos;s We Serve.
           </h2>
           <p className="text-[1rem] lg:text-[1.25rem] leading-8.5 text-[#4B4B4B] lg:h-[29px] lg:w-[705px]">
@@ -84,7 +86,7 @@ export function TestimonialsSection() {
         </div>
 
         {/* Testimonial Marquee */}
-        <div className="px-4 md:px-6 lg:px-20 overflow-x-auto flex gap-6">
+        <Marquee speed={35}>
           {TESTIMONIAL_CARDS.map((card) =>
             card.type === "video" ? (
               <VideoTestimonialCard key={card.name} card={card} />
@@ -92,7 +94,7 @@ export function TestimonialsSection() {
               <ReviewTestimonialCard key={card.name} card={card} />
             ),
           )}
-        </div>
+        </Marquee>
       </div>
     </section>
   );

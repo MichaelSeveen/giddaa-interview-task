@@ -2,24 +2,11 @@
 
 import { useId, useRef, useCallback, useState, useEffect } from "react";
 import { BaseSelectProps } from "@/config/types";
-import { cn } from "@/lib/utils";
 import { useClickOutside } from "@/hooks/use-click-outside";
 import { useListNavigation } from "@/hooks/use-list-navigation";
+import { cn } from "@/lib/utils";
+import ChevronDownIcon from "../icons/chevron-down-icon";
 
-export type ComboboxProps = BaseSelectProps;
-
-/**
- * Combobox — an input-triggered listbox with inline text filtering.
- *
- * ARIA pattern: combobox with list autocomplete
- * https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-autocomplete-list/
- *
- * Key differences from Select:
- *  - Trigger is an <input> with role="combobox", not a <button>
- *  - Space must NOT select — it types into the input
- *  - Typing filters the option list and resets the active descendant
- *  - Clearing the input clears the selection
- */
 export function Combobox({
   options,
   value,
@@ -29,7 +16,7 @@ export function Combobox({
   disabled = false,
   id: idProp,
   className,
-}: ComboboxProps) {
+}: BaseSelectProps) {
   const generatedId = useId();
   const id = idProp ?? generatedId;
 
@@ -43,11 +30,8 @@ export function Combobox({
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  // Track whether the user is actively typing so we don't overwrite their input
   const isTypingRef = useRef(false);
 
-  // Sync inputValue with external `value` changes (form reset, parent state)
-  // but NOT when the user is typing
   useEffect(() => {
     if (isTypingRef.current) return;
     const selectedOption = options.find((opt) => opt.value === value);
@@ -58,7 +42,6 @@ export function Combobox({
     opt.label.toLowerCase().includes(inputValue.toLowerCase()),
   );
 
-  // Store filteredOptions in a ref so handleSelect doesn't re-create on every filter change
   const filteredRef = useRef(filteredOptions);
   filteredRef.current = filteredOptions;
 
@@ -67,7 +50,6 @@ export function Combobox({
   const close = useCallback(() => {
     setIsOpen(false);
     isTypingRef.current = false;
-    // Restore input to the currently selected label
     const selectedOption = options.find((opt) => opt.value === value);
     setInputValue(selectedOption ? selectedOption.label : "");
   }, [options, value]);
@@ -99,7 +81,6 @@ export function Combobox({
 
   useClickOutside(containerRef, close);
 
-  // Auto-scroll the active option into view
   useEffect(() => {
     if (!isOpen || activeIndex < 0) return;
     const listbox = listboxRef.current;
@@ -113,7 +94,6 @@ export function Combobox({
     isTypingRef.current = true;
     setInputValue(nextValue);
 
-    // Clear the committed selection when the user edits the text
     if (nextValue !== options.find((opt) => opt.value === value)?.label) {
       onChange("");
     }
@@ -130,12 +110,9 @@ export function Combobox({
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      {/* Visually hidden label */}
       <label htmlFor={inputId} className="sr-only">
         {label}
       </label>
-
-      {/* ── Input wrapper ──────────────────────────────────────────────── */}
       <div className="relative">
         <input
           ref={inputRef}
@@ -152,23 +129,17 @@ export function Combobox({
           value={inputValue}
           placeholder={placeholder}
           className={cn(
-            // Base — matches Input component
             "flex h-11.25 w-full rounded-xl border bg-white px-3 py-1 pr-9",
             "text-sm text-black outline-none",
-            // Border & ring
             "ring-inset border-[#E9E9E9] ring-offset-transparent ring-offset-0",
-            // Placeholder
             "placeholder:text-[#717182] placeholder:text-sm",
-            // Focus & hover
             "focus:ring-2 hover:ring-2 ring-primary focus:shadow-[0px_0px_4px_4px_#2C59C333]",
-            // Disabled
             "disabled:cursor-not-allowed disabled:bg-[#F5F5F5] disabled:border-[#E9E9E9] disabled:text-[#717182]",
           )}
           onChange={handleInputChange}
           onClick={handleInputClick}
           onKeyDown={handleKeyDown}
         />
-        {/* Chevron toggle */}
         <button
           type="button"
           tabIndex={-1}
@@ -190,25 +161,10 @@ export function Combobox({
             }
           }}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M4 6L8 10L12 6"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ChevronDownIcon />
         </button>
       </div>
 
-      {/* ── Listbox ────────────────────────────────────────────────────── */}
       <ul
         ref={listboxRef}
         id={listboxId}
@@ -216,15 +172,10 @@ export function Combobox({
         aria-label={label}
         tabIndex={-1}
         className={cn(
-          // Positioning & sizing
           "absolute left-0 z-50 mt-1.5 w-full",
-          // Visual
           "rounded-xl border border-[#E9E9E9] bg-white shadow-sm",
-          // Scrollable
           "max-h-60 overflow-y-auto overscroll-contain scroll-py-1",
-          // Spacing
           "p-1",
-          // Animation
           "transition-[opacity,transform] duration-150 ease-out origin-top",
           isOpen
             ? "visible scale-y-100 opacity-100"

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import React from "react";
 import { useState, useRef, KeyboardEvent } from "react";
 
@@ -17,7 +18,6 @@ export interface AccordionProps {
 export function Accordion({ items, className = "" }: AccordionProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
-  // Create an array of refs to hold references to each button
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const toggleItem = (id: string) => {
@@ -30,12 +30,10 @@ export function Accordion({ items, className = "" }: AccordionProps) {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        // Move focus to next item, or loop to start
         buttonRefs.current[(index + 1) % total]?.focus();
         break;
       case "ArrowUp":
         e.preventDefault();
-        // Move focus to prev item, or loop to end
         buttonRefs.current[(index - 1 + total) % total]?.focus();
         break;
       case "Home":
@@ -52,7 +50,7 @@ export function Accordion({ items, className = "" }: AccordionProps) {
   };
 
   return (
-    <div className={`w-full flex flex-col gap-2.5 ${className}`}>
+    <div className={cn("w-full flex flex-col gap-2.5", className)}>
       {items.map((item, index) => (
         <AccordionItem
           key={item.id}
@@ -60,7 +58,6 @@ export function Accordion({ items, className = "" }: AccordionProps) {
           isOpen={openId === item.id}
           onToggle={() => toggleItem(item.id)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          // Pass the ref assignment function
           buttonRef={(el) => (buttonRefs.current[index] = el)}
           isLast={index === items.length - 1}
         />
@@ -99,15 +96,16 @@ function AccordionItem({
           id={`control-${item.id}`}
           onClick={onToggle}
           onKeyDown={onKeyDown}
-          className="group flex w-full items-center justify-between p-6 text-left font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset transition-all"
+          className="group flex w-full items-center justify-between p-6 text-left font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-all"
         >
           <span className="text-base font-semibold text-[#0A0A0A]">
             {item.title}
           </span>
           <svg
-            className={`size-4 text-[#717182] transition-transform duration-300 ease-out group-hover:text-[#717182] ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "size-4 text-[#717182] transition-transform duration-300 ease-out group-hover:text-[#717182]",
+              isOpen ? "rotate-180" : "",
+            )}
             aria-hidden="true"
             viewBox="0 0 16 16"
             fill="none"

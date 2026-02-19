@@ -1,9 +1,9 @@
-import { METRICS_DATA } from "../../data";
+import { METRICS_DATA } from "@/data";
 
 export function MetricsSection() {
   return (
     <section>
-      <div className="container mx-auto w-full h-37.5 flex">
+      <div className="container mx-auto w-full h-37.5 flex max-w-full">
         {METRICS_DATA.map((metric) => (
           <div
             key={metric.label}

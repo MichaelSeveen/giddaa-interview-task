@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface SectionBadgeProps {
   label: string;
   variant?: "light" | "dark";
@@ -13,7 +15,10 @@ export function SectionBadge({ label, variant = "dark" }: SectionBadgeProps) {
 
   return (
     <p
-      className={`${baseClasses} text-white bg-[linear-gradient(180deg,#001F3F_0%,#003366_100%),linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.2))]`}
+      className={cn(
+        "text-white bg-[linear-gradient(180deg,#001F3F_0%,#003366_100%),linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.2))]",
+        baseClasses,
+      )}
     >
       {label}
     </p>
